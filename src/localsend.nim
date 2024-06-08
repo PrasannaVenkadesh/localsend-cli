@@ -6,11 +6,11 @@ import argparse
 from sysinfo import getMachineModel
 
 # local imports
-from protocol import Device, DeviceType
-from send_service import send
+from localsendpkg/protocol import Device, DeviceType
+from localsendpkg/send_service import send
 
 # constants
-const MCAST_PORT: int = 53317;
+const MulticastPort: int = 53317;
 
 
 if isMainModule:
@@ -51,9 +51,9 @@ if isMainModule:
     alias: "localsend-cli",
     version: "2.0",
     deviceModel: getMachineModel(),
-    deviceType: $DeviceType.CLI,
+    deviceType: $DeviceType.Cli,
     fingerprint: $fingerprint,
-    port: MCAST_PORT,
+    port: MulticastPort,
     protocol: "http",
     download: false,
     announce: true
@@ -61,6 +61,6 @@ if isMainModule:
 
   let peer_sock = newAsyncSocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   peer_sock.setSockOpt(OptReuseAddr, true);
-  peer_sock.bindAddr(MCAST_PORT.Port, "");
+  peer_sock.bindAddr(MulticastPort.Port, "");
 
   waitFor send(peerSock, device, text);
