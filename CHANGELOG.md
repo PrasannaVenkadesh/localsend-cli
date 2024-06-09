@@ -4,8 +4,17 @@
 - Send Files
 - Receive Text
 - Recieve Files
-- Allow users to configure name & port.
 
+## [0.2.0]
+
+### Added
+
+- `-port` option
+- `-name` option
+
+### Changed
+
+- reorganize modules separating library & application code
 
 ## [0.1.0]
 
