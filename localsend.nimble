@@ -1,12 +1,13 @@
 # Package
 
-version       = "0.1.0"
+version       = "0.2.0"
 author        = "Prasanna Venkadesh"
 description   = "cli tool to send & receive data with other localsend devices"
 license       = "GPL-3.0-or-later"
 srcDir        = "src"
+installExt    = @["nim"]
 binDir        = "bin"
-bin           = @["localsend_cli=localsend-cli"]
+bin           = @["localsend=localsend-cli"]
 
 # Dependencies
 

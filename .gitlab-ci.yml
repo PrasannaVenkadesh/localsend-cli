@@ -13,6 +13,11 @@ build-job:
   script:
     - apt-get -y install build-essential
     - nimble build -y
+  rules:
+    - if: ($CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "main")
+      changes:
+        - localsend_cli.nimble
+        - src/*.{nim,nims,cfg}
   artifacts:
     paths:
       - "bin/"

@@ -1,14 +1,14 @@
 import std/[json, jsonutils, strutils, tables]
 
 type
-  DeviceType* = enum
+  DeviceType* {.pure.} = enum
     Web = "web"
-    CLI = "headless"
+    Cli = "headless"
     Server = "server"
     Mobile = "mobile"
     Desktop = "desktop"
 
-  FileType* = enum
+  FileType* {.pure.} = enum
     Text = "text/plain"
     Image = "image"
     Video = "video"
@@ -57,8 +57,10 @@ proc parsePeer*(data: string, peer_ip: string = ""): Peer =
   result = Peer()
   var peer_json = parse_json(data);
   let dev_type = parse_enum[DeviceType](peer_json["deviceType"].str);
-
   peer_json["ip"] = %peer_ip
   peer_json["deviceType"] = %dev_type
-
   fromJson(result, peer_json)
+
+
+proc buildFQDN*(peer: Peer): string =
+  result = peer.protocol & "://" & peer.ip & ":" & $peer.port

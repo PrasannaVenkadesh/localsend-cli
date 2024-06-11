@@ -6,26 +6,41 @@ import argparse
 from sysinfo import getMachineModel
 
 # local imports
-from protocol import Device, DeviceType
-from send_service import send
+from localsendpkg/protocol import Device, DeviceType
+from localsendpkg/send_service import send
 
 # constants
-const MCAST_PORT: int = 53317;
+const
+  defaultAlias: string = "localsend-cli"
+  defaultPort: int = 53317;
 
 
 if isMainModule:
   var
     text: string
+    multicastPort: int = defaultPort
 
   var p = newParser:
     help("{prog} - cli tool to send & receive data with other localsend peers")
+    option("-name", default=some(defaultAlias), help="name of this device")
+    option("-port", default=some($defaultPort), help="port used for discovery")
     command "send":
       option("-text", help="send a text to device", required=true)
     command "receive":
       flag("-quick-save", help="save instantly")
 
+  let opts = p.parse(os.commandLineParams())
+
   try:
-    let opts = p.parse(os.commandLineParams())
+    if opts.port.len < 4:
+      stderr.writeLine("Invalid port number, should be > 1000.")
+      quit(1)
+    multicastPort = parseInt(opts.port)
+  except ValueError:
+    stderr.writeLine($opts.port & " is not a port number")
+    quit(1)
+
+  try:
     if opts.command == "send":
       text = opts.send.get.text
       if (text == ""):
@@ -48,12 +63,12 @@ if isMainModule:
   let fingerprint = genOid()
 
   var device = Device(
-    alias: "localsend-cli",
+    alias: opts.name,
     version: "2.0",
     deviceModel: getMachineModel(),
-    deviceType: $DeviceType.CLI,
+    deviceType: $DeviceType.Cli,
     fingerprint: $fingerprint,
-    port: MCAST_PORT,
+    port: multicastPort,
     protocol: "http",
     download: false,
     announce: true
@@ -61,6 +76,6 @@ if isMainModule:
 
   let peer_sock = newAsyncSocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
   peer_sock.setSockOpt(OptReuseAddr, true);
-  peer_sock.bindAddr(MCAST_PORT.Port, "");
+  peer_sock.bindAddr(multicastPort.Port, "");
 
   waitFor send(peerSock, device, text);
