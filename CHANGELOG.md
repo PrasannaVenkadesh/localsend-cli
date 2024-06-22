@@ -1,9 +1,23 @@
 ## [Unreleased]
 
-- Send text to multiple peers
-- Send Files
+- Send multiple items in parallel (async)
+- Track & Display Sending Progress
 - Receive Text
 - Recieve Files
+
+## [0.3.0]
+
+### Added
+
+- [cli] Send more than one text to a selected peer.
+- [cli] Send file(s) to a selected peer.
+- [lib] ItemType Enum in `sender.nim`
+- [lib] SendingFile Object in `sender.nim`
+
+### Changed
+
+- [cli] `send` command expects `text` or `file` kind instead of `-text` or `-file` option.
+- [lib] `sendText` procedure is replaced with `sentItems` procedure to send both texts and files.
 
 ## [0.2.0]
 
