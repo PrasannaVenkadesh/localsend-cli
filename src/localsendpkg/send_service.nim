@@ -1,10 +1,10 @@
-import std/[asyncnet, asyncdispatch, strutils, terminal]
+import std/[asyncnet, asyncdispatch, os, strutils, terminal]
 
 # local imports
 from protocol import Device, Peer, `$`, FileType, FileDto, PrepareUploadDto
 from scanner import advertise, scan
 from status import Transfer
-from sender import sendText
+from sender import ItemType, sendItems
 
 from cli_utils import AsciiMoji, displayPeerName, displayOperation
 
@@ -56,8 +56,14 @@ proc displayProgress(msg: string, timeout_s: int) {.async.} =
     remaining.dec
 
 
-proc send*(sock: AsyncSocket, device: Device, text: string,
-           scan_interval: int = 10) {.async.} =
+proc send*(sock: AsyncSocket, device: Device, values: seq[string],
+           scan_interval: int = 10, itemType: ItemType) {.async.} =
+
+  if itemType == ItemType.Files:
+    for fileName in values:
+      if not fileExists(fileName):
+        stderr.writeLine("File not found: " & fileName)
+        quit(1)
   try:
     await advertise(sock, device)
     displayOperation("Advertise", $Transfer.OK)
@@ -65,8 +71,9 @@ proc send*(sock: AsyncSocket, device: Device, text: string,
     displayOperation("Advertise", $Transfer.FAIL, error=true)
 
   let
-    progressTask = displayProgress($AsciiMoji.Innocent & " scanning for peers -> ",
-                                   scan_interval)
+    progressTask = displayProgress(
+      $AsciiMoji.Innocent & " scanning for peers -> ", scan_interval
+    )
     scanTask = sock.scan(device, scan_interval)
 
   waitFor progressTask and scanTask
@@ -80,10 +87,11 @@ proc send*(sock: AsyncSocket, device: Device, text: string,
                  $peers.len)
       # prompt user to select a peer from list 
       let peer: Peer = peers.selectPeer()
+
       displayPeerName(peer, true)
-    
       displayOperation("Sending", $Transfer.PROGRESS)
-      let sent: bool = await peer.sendText(device, text)
+
+      let sent: bool = await peer.sendItems(device, values, itemType)
       
       cursorUp 1
       eraseLine
