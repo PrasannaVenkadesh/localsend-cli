@@ -5,6 +5,12 @@
 - Receive Text
 - Recieve Files
 
+## [0.3.1]
+
+### Fixed
+
+- Fix sent status while sending single text with preview
+
 ## [0.3.0]
 
 ### Added
