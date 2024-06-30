@@ -108,6 +108,10 @@ proc sendItems*(peer: Peer, device: Device, values: seq[string],
     # request the peer if they can accept our upload
     let sessionInfo = await requestUpload(peer, payload)
 
+    # single text with preview message won't have sessionInfo
+    if (itemType == ItemType.Texts) and (sendingFiles.len == 1):
+      result = true
+
     # if the peer accepted proceed to upload
     if sessionInfo.len > 0:
       let sessionId = sessionInfo["sessionId"].getStr()
